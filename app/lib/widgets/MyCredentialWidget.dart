@@ -9,7 +9,7 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
   bool editMode = false;
   bool showAddSubcategoryButton = false;
   List<String> categories = [];
-  Map<String, List<String>> subcategories = {};
+  Map<String, Map<String, List<String>>> subcategories = {};
 
   TextEditingController categoryNameController = TextEditingController();
   TextEditingController subcategoryNameController = TextEditingController();
@@ -24,9 +24,12 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
   void addSubcategory(String categoryName, String subcategoryName, String description) {
     setState(() {
       if (!subcategories.containsKey(categoryName)) {
-        subcategories[categoryName] = [];
+        subcategories[categoryName] = {};
       }
-      subcategories[categoryName]?.add('$subcategoryName: $description');
+      if (!subcategories[categoryName]!.containsKey(subcategoryName)) {
+        subcategories[categoryName]![subcategoryName] = [];
+      }
+      subcategories[categoryName]![subcategoryName]?.add(description);
     });
   }
 
@@ -53,8 +56,8 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                     )
                   : null,
               children: [
-                for (var subcategory in subcategories[category] ?? [])
-                  ListTile(
+                for (var subcategory in subcategories[category]?.keys.toList() ?? [])
+                  ExpansionTile(
                     title: Text('Subcategoría: $subcategory'),
                     trailing: editMode
                         ? IconButton(
@@ -66,6 +69,12 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                             },
                           )
                         : null,
+                    children: [
+                      for (var description in subcategories[category]![subcategory] ?? [])
+                        ListTile(
+                          title: Text('Descripción: $description'),
+                        ),
+                    ],
                   ),
                 if (editMode)
                   ListTile(
@@ -83,8 +92,8 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                                   decoration: InputDecoration(labelText: 'Nombre de la Subcategoría'),
                                   onChanged: (value) {
                                     setState(() {
-                                      showAddSubcategoryButton = value.isNotEmpty &&
-                                          descriptionController.text.isNotEmpty;
+                                      showAddSubcategoryButton = value.trim().isNotEmpty &&
+                                          descriptionController.text.trim().isNotEmpty;
                                     });
                                   },
                                 ),
@@ -93,8 +102,8 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                                   decoration: InputDecoration(labelText: 'Descripción'),
                                   onChanged: (value) {
                                     setState(() {
-                                      showAddSubcategoryButton = value.isNotEmpty &&
-                                          subcategoryNameController.text.isNotEmpty;
+                                      showAddSubcategoryButton = value.trim().isNotEmpty &&
+                                          subcategoryNameController.text.trim().isNotEmpty;
                                     });
                                   },
                                 ),
@@ -110,8 +119,8 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                               ElevatedButton(
                                 onPressed: showAddSubcategoryButton
                                     ? () {
-                                      String subcategoryName = subcategoryNameController.text.trim();
-                                      String description = descriptionController.text.trim();
+                                        String subcategoryName = subcategoryNameController.text.trim();
+                                        String description = descriptionController.text.trim();
                                         if (subcategoryName.isNotEmpty &&
                                             description.isNotEmpty) {
                                           addSubcategory(
@@ -232,3 +241,5 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
     );
   }
 }
+
+
