@@ -30,21 +30,25 @@ class _MyAssociatedUsersScreenState extends State<MyAssociatedUsersScreen> {
       appBar: AppBar(
         title: Text('Usuarios Asociados - ${widget.categoryName}'),
       ),
-      body: ListView.builder(
-        itemCount: users.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage('https://via.placeholder.com/150'),
+      body: users.isEmpty
+          ? Center(
+              child: Text('No se encuentran usuarios asociados.'),
+            )
+          : ListView.builder(
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: NetworkImage('https://www.shutterstock.com/image-vector/user-icon-man-person-people-260nw-1935032822.jpg'),
+                  ),
+                  title: Text(users[index]),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () => removeUser(index),
+                  ),
+                );
+              },
             ),
-            title: Text(users[index]),
-            trailing: IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: () => removeUser(index),
-            ),
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: addUser,
         child: Icon(Icons.add),
