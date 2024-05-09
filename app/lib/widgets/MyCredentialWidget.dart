@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 
 class MyCredentialWidget extends StatefulWidget {
@@ -112,17 +110,35 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                               ElevatedButton(
                                 onPressed: showAddSubcategoryButton
                                     ? () {
-                                        addSubcategory(
-                                          category,
-                                          subcategoryNameController.text,
-                                          descriptionController.text,
-                                        );
-                                        Navigator.pop(context, true);
+                                      String subcategoryName = subcategoryNameController.text.trim();
+                                      String description = descriptionController.text.trim();
+                                        if (subcategoryName.isNotEmpty &&
+                                            description.isNotEmpty) {
+                                          addSubcategory(
+                                            category,
+                                            subcategoryNameController.text,
+                                            descriptionController.text,
+                                          );
+                                          Navigator.pop(context, true);
+                                        } else {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: Text('Error'),
+                                              content: Text('Los campos no pueden estar vacíos.'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text('Aceptar'),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }
                                       }
                                     : null,
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-                                ),
                                 child: Text('Añadir'),
                               ),
                             ],
@@ -136,9 +152,6 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                           });
                         }
                       },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-                      ),
                       child: Text('Añadir Subcategoría'),
                     ),
                   ),
@@ -165,22 +178,35 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            addCategory(categoryNameController.text);
-                            Navigator.pop(context);
-                            categoryNameController.clear();
+                            String categoryName = categoryNameController.text.trim();
+                            if (categoryName.isNotEmpty) {
+                              addCategory(categoryNameController.text);
+                              Navigator.pop(context);
+                              categoryNameController.clear();
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text('Error'),
+                                  content: Text('El nombre de la categoría no puede estar vacío.'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text('Aceptar'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
                           },
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-                          ),
                           child: Text('Añadir'),
                         ),
                       ],
                     ),
                   );
                 },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-                ),
                 child: Text('Añadir Categoría'),
               ),
             ),
@@ -195,12 +221,11 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
         child: Icon(editMode ? Icons.check : Icons.edit),
       ),
       bottomNavigationBar: BottomAppBar(
-        color: Colors.blue,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(
             editMode ? 'Modo Edición Activado' : '',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
           ),
         ),
       ),
