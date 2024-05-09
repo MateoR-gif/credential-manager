@@ -10,6 +10,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Mis Credenciales',
+      theme: ThemeData(
+        dividerColor: Colors.transparent, // Eliminar las líneas entre ExpansionTiles
+      ),
       home: MyCredentialWidget(),
     );
   }
