@@ -1,6 +1,8 @@
 import 'package:app/widgets/FileRepository.dart';
 import 'package:app/widgets/MyCredentialAssociate.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'dart:convert';
 
 class MyCredentialWidget extends StatefulWidget {
   @override
@@ -18,14 +20,87 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
   TextEditingController subcategoryNameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    loadCredentials();
+  }
+
+  Future<void> loadCredentials() async {
+    try {
+      String jsonData = await rootBundle.loadString('lib/assets/credentials.json');
+      Map<String, dynamic> data = json.decode(jsonData);
+
+      List<dynamic> categoryList = data['categories'];
+      for (var categoryData in categoryList) {
+        String categoryName = categoryData['name'];
+        List<dynamic> subcategoryList = categoryData['subcategories'];
+        Map<String, List<String>> subcategoryMap = {};
+        for (var subcategoryData in subcategoryList) {
+          String subcategoryName = subcategoryData['name'];
+          List<dynamic> descriptionList = subcategoryData['descriptions'];
+          subcategoryMap[subcategoryName] = List<String>.from(descriptionList);
+        }
+        subcategories[categoryName] = subcategoryMap;
+        fileRepositories[categoryName] = categoryData['fileRepository'];
+      }
+
+      setState(() {
+        categories = subcategories.keys.toList();
+      });
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text(e.toString()),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Aceptar'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  Future<void> saveCredentialsToJson() async {
+    Map<String, dynamic> data = {
+      'categories': categories.map((categoryName) {
+        return {
+          'name': categoryName,
+          'subcategories': subcategories[categoryName]?.entries.map((entry) {
+            return {
+              'name': entry.key,
+              'descriptions': entry.value,
+            };
+          }).toList(),
+          'fileRepository': fileRepositories[categoryName],
+        };
+      }).toList(),
+    };
+
+    String jsonData = json.encode(data);
+    // Guardar jsonData en el archivo JSON local
+  }
+
   void addCategory(String categoryName) {
     setState(() {
       categories.add(categoryName);
-      fileRepositories[categoryName] = ''; // Agregar una entrada vacía para el repositorio de archivos
+      fileRepositories[categoryName] =
+          ''; // Agregar una entrada vacía para el repositorio de archivos
+      subcategories[categoryName] =
+          {}; // Agregar una entrada vacía para las subcategorías
     });
+
+    saveCredentialsToJson();
   }
 
-  void addSubcategory(String categoryName, String subcategoryName, String description) {
+  void addSubcategory(
+      String categoryName, String subcategoryName, String description) {
     setState(() {
       if (!subcategories.containsKey(categoryName)) {
         subcategories[categoryName] = {};
@@ -35,6 +110,8 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
       }
       subcategories[categoryName]![subcategoryName]?.add(description);
     });
+
+    saveCredentialsToJson();
   }
 
   @override
@@ -60,11 +137,13 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                               subcategories.remove(category);
                               fileRepositories.remove(category);
                             });
+                            saveCredentialsToJson();
                           },
                         )
                       : null,
                   children: [
-                    for (var subcategory in subcategories[category]?.keys.toList() ?? [])
+                    for (var subcategory
+                        in subcategories[category]?.keys.toList() ?? [])
                       ExpansionTile(
                         title: Text(subcategory),
                         trailing: editMode
@@ -72,13 +151,16 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
                                   setState(() {
-                                    subcategories[category]?.remove(subcategory);
+                                    subcategories[category]
+                                        ?.remove(subcategory);
                                   });
+                                  saveCredentialsToJson();
                                 },
                               )
                             : null,
                         children: [
-                          for (var description in subcategories[category]![subcategory] ?? [])
+                          for (var description
+                              in subcategories[category]![subcategory] ?? [])
                             ListTile(
                               title: Text(description),
                               trailing: editMode
@@ -86,8 +168,10 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                                       icon: Icon(Icons.delete),
                                       onPressed: () {
                                         setState(() {
-                                          subcategories[category]![subcategory]?.remove(description);
+                                          subcategories[category]![subcategory]
+                                              ?.remove(description);
                                         });
+                                        saveCredentialsToJson();
                                       },
                                     )
                                   : null,
@@ -107,21 +191,30 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                                   children: [
                                     TextField(
                                       controller: subcategoryNameController,
-                                      decoration: InputDecoration(labelText: 'Nombre de la Subcategoría'),
+                                      decoration: InputDecoration(
+                                          labelText:
+                                              'Nombre de la Subcategoría'),
                                       onChanged: (value) {
                                         setState(() {
-                                          showAddSubcategoryButton = value.trim().isNotEmpty &&
-                                              descriptionController.text.trim().isNotEmpty;
+                                          showAddSubcategoryButton =
+                                              value.trim().isNotEmpty &&
+                                                  descriptionController.text
+                                                      .trim()
+                                                      .isNotEmpty;
                                         });
                                       },
                                     ),
                                     TextField(
                                       controller: descriptionController,
-                                      decoration: InputDecoration(labelText: 'Descripción'),
+                                      decoration: InputDecoration(
+                                          labelText: 'Descripción'),
                                       onChanged: (value) {
                                         setState(() {
-                                          showAddSubcategoryButton = value.trim().isNotEmpty &&
-                                              subcategoryNameController.text.trim().isNotEmpty;
+                                          showAddSubcategoryButton =
+                                              value.trim().isNotEmpty &&
+                                                  subcategoryNameController.text
+                                                      .trim()
+                                                      .isNotEmpty;
                                         });
                                       },
                                     ),
@@ -137,8 +230,12 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                                   ElevatedButton(
                                     onPressed: showAddSubcategoryButton
                                         ? () {
-                                            String subcategoryName = subcategoryNameController.text.trim();
-                                            String description = descriptionController.text.trim();
+                                            String subcategoryName =
+                                                subcategoryNameController.text
+                                                    .trim();
+                                            String description =
+                                                descriptionController.text
+                                                    .trim();
                                             if (subcategoryName.isNotEmpty &&
                                                 description.isNotEmpty) {
                                               addSubcategory(
@@ -150,9 +247,11 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                                             } else {
                                               showDialog(
                                                 context: context,
-                                                builder: (context) => AlertDialog(
+                                                builder: (context) =>
+                                                    AlertDialog(
                                                   title: Text('Error'),
-                                                  content: Text('Los campos no pueden estar vacíos.'),
+                                                  content: Text(
+                                                      'Los campos no pueden estar vacíos.'),
                                                   actions: [
                                                     TextButton(
                                                       onPressed: () {
@@ -192,7 +291,8 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => MyAssociatedUsersScreen(category),
+                              builder: (context) =>
+                                  MyAssociatedUsersScreen(category),
                             ),
                           );
                         },
@@ -204,7 +304,8 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => FileRepositoryScreen(category),
+                                builder: (context) =>
+                                    FileRepositoryScreen(category),
                               ),
                             );
                           },
@@ -225,7 +326,8 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                       title: Text('Añadir Categoría'),
                       content: TextField(
                         controller: categoryNameController,
-                        decoration: InputDecoration(labelText: 'Nombre de la Categoría'),
+                        decoration: InputDecoration(
+                            labelText: 'Nombre de la Categoría'),
                       ),
                       actions: [
                         TextButton(
@@ -236,7 +338,8 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            String categoryName = categoryNameController.text.trim();
+                            String categoryName =
+                                categoryNameController.text.trim();
                             if (categoryName.isNotEmpty) {
                               addCategory(categoryNameController.text);
                               Navigator.pop(context);
@@ -246,7 +349,8 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                                 context: context,
                                 builder: (context) => AlertDialog(
                                   title: Text('Error'),
-                                  content: Text('El nombre de la categoría no puede estar vacío.'),
+                                  content: Text(
+                                      'El nombre de la categoría no puede estar vacío.'),
                                   actions: [
                                     TextButton(
                                       onPressed: () {
@@ -290,6 +394,3 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
     );
   }
 }
-
-
-
