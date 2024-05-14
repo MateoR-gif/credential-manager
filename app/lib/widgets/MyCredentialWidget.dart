@@ -1,3 +1,5 @@
+import 'package:app/widgets/FileRepository.dart';
+import 'package:app/widgets/MyCredentialAssociate.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -321,7 +323,7 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                 Divider(),
               ],
             ),
-          if (editMode)
+          if (editMode || categories.isEmpty)
             ListTile(
               title: ElevatedButton(
                 onPressed: () async {
@@ -395,42 +397,6 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
             style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class MyAssociatedUsersScreen extends StatelessWidget {
-  final String category;
-
-  MyAssociatedUsersScreen(this.category);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Usuarios Asociados a $category'),
-      ),
-      body: Center(
-        child: Text('Lista de usuarios asociados a $category'),
-      ),
-    );
-  }
-}
-
-class FileRepositoryScreen extends StatelessWidget {
-  final String category;
-
-  FileRepositoryScreen(this.category);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Repositorio de Archivos de $category'),
-      ),
-      body: Center(
-        child: Text('Contenido del repositorio de archivos de $category'),
       ),
     );
   }
