@@ -1,7 +1,7 @@
 import 'package:app/widgets/FileRepository.dart';
 import 'package:app/widgets/MyCredentialAssociate.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class MyCredentialWidget extends StatefulWidget {
@@ -28,26 +28,32 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
 
   Future<void> loadCredentials() async {
     try {
-      String jsonData = await rootBundle.loadString('lib/assets/credentials.json');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String jsonData = prefs.getString('credentials') ?? '{}';
       Map<String, dynamic> data = json.decode(jsonData);
 
-      List<dynamic> categoryList = data['categories'];
-      for (var categoryData in categoryList) {
-        String categoryName = categoryData['name'];
-        List<dynamic> subcategoryList = categoryData['subcategories'];
-        Map<String, List<String>> subcategoryMap = {};
-        for (var subcategoryData in subcategoryList) {
-          String subcategoryName = subcategoryData['name'];
-          List<dynamic> descriptionList = subcategoryData['descriptions'];
-          subcategoryMap[subcategoryName] = List<String>.from(descriptionList);
+      List<dynamic>? categoryList = data['categories'];
+      if (categoryList != null) {
+        for (var categoryData in categoryList) {
+          String categoryName = categoryData['name'];
+          List<dynamic>? subcategoryList = categoryData['subcategories'];
+          if (subcategoryList != null) {
+            Map<String, List<String>> subcategoryMap = {};
+            for (var subcategoryData in subcategoryList) {
+              String subcategoryName = subcategoryData['name'];
+              List<dynamic>? descriptionList = subcategoryData['descriptions'];
+              if (descriptionList != null) {
+                subcategoryMap[subcategoryName] = List<String>.from(descriptionList);
+              }
+            }
+            subcategories[categoryName] = subcategoryMap;
+          }
+          fileRepositories[categoryName] = categoryData['fileRepository'];
         }
-        subcategories[categoryName] = subcategoryMap;
-        fileRepositories[categoryName] = categoryData['fileRepository'];
+        setState(() {
+          categories = subcategories.keys.toList();
+        });
       }
-
-      setState(() {
-        categories = subcategories.keys.toList();
-      });
     } catch (e) {
       showDialog(
         context: context,
@@ -68,6 +74,7 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
   }
 
   Future<void> saveCredentialsToJson() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     Map<String, dynamic> data = {
       'categories': categories.map((categoryName) {
         return {
@@ -84,7 +91,7 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
     };
 
     String jsonData = json.encode(data);
-    // Guardar jsonData en el archivo JSON local
+    await prefs.setString('credentials', jsonData);
   }
 
   void addCategory(String categoryName) {
@@ -316,7 +323,7 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
                 Divider(),
               ],
             ),
-          if (editMode)
+          if (editMode || categories.isEmpty)
             ListTile(
               title: ElevatedButton(
                 onPressed: () async {
