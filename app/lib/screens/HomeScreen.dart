@@ -1,4 +1,4 @@
-import 'package:app/widgets/MyAssociatedCredential.dart';
+import 'package:app/widgets/News.dart';
 import 'package:app/widgets/MyCredentialWidget.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         children: [
           MyCredentialWidget(),
-          MyAssociatedCredential(),
+          ArticlesPage(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -41,8 +41,8 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Mis Credenciales',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
-            label: 'Credenciales Asociadas',
+            icon: Icon(Icons.web),
+            label: 'Novedades de Ciberseguridad',
           ),
         ],
       ),

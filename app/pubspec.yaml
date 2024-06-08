@@ -10,7 +10,11 @@ dependencies:
   file_picker: ^8.0.3
   flutter:
     sdk: flutter
+  http: ^1.2.1
+  provider: ^6.1.2
   shared_preferences: ^2.2.3
+  intl: ^0.17.0
+  url_launcher: ^6.0.20
 
 dev_dependencies:
   flutter_test:
