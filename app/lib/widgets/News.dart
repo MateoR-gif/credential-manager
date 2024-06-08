@@ -5,28 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => ArticlesProvider()..fetchArticles(),
-      child: MyApp(),
-    ),
-  );
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: ArticlesPage(),
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-    );
-  }
-}
-
 class ArticlesPage extends StatelessWidget {
   final ScrollController _scrollController = ScrollController();
 
@@ -55,13 +33,8 @@ class ArticlesPage extends StatelessWidget {
             ? Center(child: CircularProgressIndicator())
             : ListView.builder(
                 controller: _scrollController,
-                itemCount: provider.articles.length + 1,
+                itemCount: provider.articles.length,
                 itemBuilder: (context, index) {
-                  if (index == provider.articles.length) {
-                    return provider.isLoading
-                        ? Center(child: CircularProgressIndicator())
-                        : SizedBox.shrink();
-                  }
                   final article = provider.articles[index];
                   return ArticleCard(article: article);
                 },
@@ -79,13 +52,11 @@ class ArticleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DateFormat formatter = DateFormat.yMMMd().add_jm();
-    final String formattedDate =
-        formatter.format(DateTime.parse(article.publishedAt));
+    final String formattedDate = formatter.format(DateTime.parse(article.publishedAt));
 
     return GestureDetector(
       onTap: () async {
         Uri url = Uri.parse(article.url);
-        print(url);
         if (await canLaunchUrl(url)) {
           await launchUrl(url);
         } else {
@@ -106,7 +77,7 @@ class ArticleCard extends StatelessWidget {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
                 child: Image.network(
                   article.urlToImage!,
-                  height: 200,
+                  height: 400, // Ajusta la altura a pantalla completa
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),
