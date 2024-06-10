@@ -15,7 +15,7 @@ void main() {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        initialRoute: '/login', // Primero lleva al login
+        initialRoute: '/login',
         routes: {
           '/login': (context) => LoginPage(),
           '/register': (context) => RegisterPage(),

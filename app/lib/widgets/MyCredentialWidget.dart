@@ -125,6 +125,7 @@ class _MyCredentialWidgetState extends State<MyCredentialWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Eliminar la flecha de retorno
         title: Text('Mis Credenciales'),
       ),
       body: ListView(

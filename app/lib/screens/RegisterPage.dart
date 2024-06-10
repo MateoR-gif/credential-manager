@@ -27,7 +27,7 @@ class RegisterPage extends StatelessWidget {
             SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/home');
+                _showSuccessDialog(context); // Mostrar la alerta de registro exitoso
               },
               child: Text('Registrarse'),
             ),
@@ -41,6 +41,27 @@ class RegisterPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Registro Exitoso'),
+          content: Text('¡Tu cuenta ha sido registrada exitosamente!'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar la alerta
+                Navigator.pushReplacementNamed(context, '/login'); // Redirigir al login
+              },
+              child: Text('Aceptar'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
