@@ -1,3 +1,4 @@
+import 'package:app/services/FirebaseAuthSevice.dart';
 import 'package:flutter/material.dart';
 import 'package:app/widgets/News.dart';
 import 'package:app/widgets/MyCredentialWidget.dart';
@@ -9,12 +10,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final PageController _pageController = PageController();
+  final FireBaseAuthService _auth = FireBaseAuthService();
   int _selectedPageIndex = 0;
 
   // Método para cerrar sesión
   void _logout() {
-    // Aquí puedes realizar cualquier tarea de cierre de sesión, como limpiar las credenciales, etc.
-    // Luego navega a la pantalla de inicio de sesión
+    _auth.logout();
     Navigator.pushReplacementNamed(context, '/login');
   }
 

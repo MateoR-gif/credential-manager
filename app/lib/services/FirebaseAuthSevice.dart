@@ -16,5 +16,9 @@ class FireBaseAuthService {
         email: email, password: password);
     return userCredential.user;
   }
-  
+
+
+Future<void> logout() async {
+    await _auth.signOut();
+  }
 }

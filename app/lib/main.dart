@@ -16,6 +16,7 @@ void main() async{
     ChangeNotifierProvider(
       create: (context) => ArticlesProvider()..fetchArticles(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Your App Name',
         theme: ThemeData(
           primarySwatch: Colors.blue,

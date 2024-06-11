@@ -54,9 +54,31 @@ class LoginPage extends StatelessWidget {
     final String email = emailController.text;
     final String password = passwordController.text;
 
-    User? firebaseUser = await _auth.signInWithEmailAndPassword(email, password);
-    if (email.isNotEmpty && password.isNotEmpty && firebaseUser != null) {
-      Navigator.pushReplacementNamed(context, '/home');
+    if (email.isNotEmpty && password.isNotEmpty) {
+      
+      
+      try{
+        User? firebaseUser = await _auth.signInWithEmailAndPassword(email, password);
+        Navigator.pushReplacementNamed(context, '/home');
+      }catch(error){
+        showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text('Correo o contraseña incorrectos'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Aceptar'),
+            ),
+          ],
+        ),
+      );
+      }
+      
+      
     } else {
       // Mostrar un diálogo de error si los campos están vacíos
       showDialog(
@@ -75,5 +97,7 @@ class LoginPage extends StatelessWidget {
         ),
       );
     }
+
+    
   }
 }
