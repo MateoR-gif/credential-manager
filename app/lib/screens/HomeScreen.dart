@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Título de la App'),
+        title: Text('CredeMan'),
         automaticallyImplyLeading: false, // Evitar que aparezca la flecha de regreso
         actions: [
           // Botón para cerrar sesión

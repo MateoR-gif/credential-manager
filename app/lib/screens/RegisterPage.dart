@@ -4,13 +4,19 @@ import 'package:app/services/FirebaseAuthSevice.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class RegisterPage extends StatelessWidget {
-  // Controladores de texto
+class RegisterPage extends StatefulWidget {
+  @override
+  _RegisterPageState createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final FireBaseAuthService _auth = FireBaseAuthService();
   final UserController _userController = UserController();
+
+  bool _isRegistering = false; // Flag to track registration status
 
   @override
   Widget build(BuildContext context) {
@@ -18,58 +24,74 @@ class RegisterPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Registro'),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: 'Nombre'),
+      body: _isRegistering
+          ? _buildProgressIndicator()
+          : Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(labelText: 'Nombre'),
+                  ),
+                  SizedBox(height: 20.0),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(labelText: 'Correo electrónico'),
+                  ),
+                  SizedBox(height: 20.0),
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(labelText: 'Contraseña'),
+                  ),
+                  SizedBox(height: 20.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      _signUp(context);
+                    },
+                    child: Text('Registrarse'),
+                  ),
+                  SizedBox(height: 10.0),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/login');
+                    },
+                    child: Text('¿Ya tienes una cuenta? Inicia sesión aquí'),
+                  ),
+                ],
+              ),
             ),
-            SizedBox(height: 20.0),
-            TextFormField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: 'Correo electrónico'),
-            ),
-            SizedBox(height: 20.0),
-            TextFormField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'Contraseña'),
-            ),
-            SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: () {
-                _signUp(context);
-              },
-              child: Text('Registrarse'),
-            ),
-            SizedBox(height: 10.0),
-            TextButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-              child: Text('¿Ya tienes una cuenta? Inicia sesión aquí'),
-            ),
-          ],
-        ),
+    );
+  }
+
+  Widget _buildProgressIndicator() {
+    return Container(
+      color: Colors.black.withOpacity(0.5),
+      child: Center(
+        child: CircularProgressIndicator(),
       ),
     );
   }
 
   void _signUp(BuildContext context) async {
+    setState(() {
+      _isRegistering = true; // Set flag to true when registration starts
+    });
+
     String name = _nameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
 
     User? userFirebase = await _auth.signUpWithEmailAndPassword(email, password);
-    if(userFirebase != null){
+    if (userFirebase != null) {
       MyUser myUser = MyUser(id: userFirebase.uid, name: name, email: email, password: password);
       await _userController.createUser(myUser);
       _showSuccessDialog(context);
-    }else{
-      //Logica por si no
+    } else {
+      // Handle registration failure
+      // You might want to set _isRegistering back to false here
     }
   }
 
@@ -83,8 +105,8 @@ class RegisterPage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Cerrar la alerta
-                Navigator.pushReplacementNamed(context, '/login'); // Redirigir al login
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.pushReplacementNamed(context, '/login'); // Redirect to login
               },
               child: Text('Aceptar'),
             ),
