@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "689406221282",
+    "project_id": "cred-manager-ba25d",
+    "storage_bucket": "cred-manager-ba25d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:689406221282:android:f1958afb8ea4b7ba7eb7bb",
+        "android_client_info": {
+          "package_name": "credential.manager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGlU3ZzhXVTZ-4wlXk3FBNBLpjEVV9CTw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

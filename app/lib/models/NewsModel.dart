@@ -1,13 +1,13 @@
 class Article {
   final String title;
-  final String description;
+  final String? description;
   final String url;
   final String? urlToImage;
   final String publishedAt;
 
   Article({
     required this.title,
-    required this.description,
+    this.description,
     required this.url,
     this.urlToImage,
     required this.publishedAt,
@@ -15,9 +15,9 @@ class Article {
 
   factory Article.fromJson(Map<String, dynamic> json) {
     return Article(
-      title: json['title'],
+      title: json['title'] ?? '',
       description: json['description'],
-      url: json['url'],
+      url: json['url'] ?? '',
       urlToImage: json['urlToImage'],
       publishedAt: DateTime.parse(json['publishedAt']).toLocal().toString(),
     );

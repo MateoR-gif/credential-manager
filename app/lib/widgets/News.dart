@@ -26,7 +26,9 @@ class ArticlesPage extends StatelessWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(title: Text('Noticias')),
+      appBar: AppBar(title: Text('Noticias'),
+        automaticallyImplyLeading: false // Evitar que aparezca la flecha de regreso
+      ),
       body: RefreshIndicator(
         onRefresh: () => _refreshArticles(context),
         child: provider.isLoading && provider.articles.isEmpty
@@ -72,7 +74,7 @@ class ArticleCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (article.urlToImage != null)
+            if (article.urlToImage != null && article.urlToImage!.isNotEmpty)
               ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
                 child: Image.network(
@@ -94,14 +96,19 @@ class ArticleCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 8.0),
-                  Text(
-                    article.description,
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      color: Colors.grey[700],
+                  if (article.description != null && article.description!.isNotEmpty)
+                    Column(
+                      children: [
+                        SizedBox(height: 8.0),
+                        Text(
+                          article.description!,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
                   SizedBox(height: 8.0),
                   Align(
                     alignment: Alignment.centerRight,
