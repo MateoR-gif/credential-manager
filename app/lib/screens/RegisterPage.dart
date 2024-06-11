@@ -76,13 +76,19 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _signUp(BuildContext context) async {
-    setState(() {
-      _isRegistering = true; // Set flag to true when registration starts
-    });
-
     String name = _nameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
+
+    // Validar que los campos no estén vacíos y cumplan con los requisitos mínimos
+    if (name.isEmpty || name.length < 3 || !isValidEmail(email) || password.length < 6) {
+      _showErrorDialog(context, 'Por favor, verifica los campos y asegúrate de que cumplen con los requisitos mínimos.');
+      return;
+    }
+
+    setState(() {
+      _isRegistering = true; // Set flag to true when registration starts
+    });
 
     User? userFirebase = await _auth.signUpWithEmailAndPassword(email, password);
     if (userFirebase != null) {
@@ -114,5 +120,31 @@ class _RegisterPageState extends State<RegisterPage> {
         );
       },
     );
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error de Registro'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  bool isValidEmail(String email) {
+    // Expresión regular para validar un correo electrónico
+    RegExp emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegExp.hasMatch(email);
   }
 }
